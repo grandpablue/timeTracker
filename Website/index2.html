@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Tracker Beta</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+    .task-btn { margin: 5px; padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc; background: #f9f9f9; cursor: pointer; }
+    .stats-entry { margin: 6px 0; font-size: 0.9em; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+    button { margin-left: 5px; }
+  </style>
+</head>
+<body style = "background-color: pink;" >
+  <h1 style = "color:mediumslateblue">Karlee's Task Tracker</h1>
+<img src="https://gifdb.com/images/high/i-think-you-should-leave-tim-robinson-slicked-koffpn54ac51ooe1.gif" alt="Karlee Avatar" width="500"/>
+  <!-- Input and Task Buttons -->
+  <div>
+    <h2>Add a New Task</h2>
+    <input id="taskInput" placeholder="Enter task name..."/>
+    <button onclick="addTask()">Add Task</button>
+  </div>
+
+  <div id="taskButtons"></div>
+
+  <!-- Active Task Display -->
+  <h2>Active Task</h2>
+  <div id="activeTask">No task running</div>
+
+  <!-- Statistics Section -->
+  <h2>Statistics</h2>
+  <div id="stats"></div>
+
+  <script>
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    let sessions = JSON.parse(localStorage.getItem('sessions')) || [];
+    let currentTask = null;
+    let startTime = null;
+
+    // --- Helpers ---
+    function formatHMS(ms) {
+      const totalSeconds = Math.floor(ms / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    function formatHMSVerbose(ms) {
+      const totalSeconds = Math.floor(ms / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      let parts = [];
+      if (hours > 0) parts.push(`${hours}h`);
+      if (minutes > 0) parts.push(`${minutes}m`);
+      parts.push(`${seconds}s`);
+      return parts.join(' ');
+    }
+
+    function formatTime(dateStr) {
+      const d = new Date(dateStr);
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    // --- Add new task to button list ---
+    function addTask() {
+      const name = document.getElementById('taskInput').value.trim();
+      if (!name) return alert('Enter a valid task name!');
+      if (!tasks.includes(name)) {
+        tasks.push(name);
+        saveData();
+      }
+      document.getElementById('taskInput').value = '';
+      renderTaskButtons();
+    }
+
+    // --- Start new session for selected task ---
+    function startTask(name) {
+      if (currentTask) stopTask(); // stop running task if any
+      currentTask = name;
+      startTime = new Date();
+      renderActiveTask();
+    }
+
+    // --- Stop running task and log session ---
+    function stopTask() {
+      if (!currentTask) return;
+      const endTime = new Date();
+      const duration = endTime - startTime;
+      const session = {
+        name: currentTask,
+        start: startTime.toISOString(),
+        end: endTime.toISOString(),
+        duration: duration
+      };
+      sessions.push(session);
+      saveData();
+      currentTask = null;
+      startTime = null;
+      renderActiveTask();
+      renderStats();
+    }
+
+    // --- Save tasks and sessions ---
+    function saveData() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      localStorage.setItem('sessions', JSON.stringify(sessions));
+    }
+
+    // --- Render task buttons ---
+    function renderTaskButtons() {
+      const container = document.getElementById('taskButtons');
+      container.innerHTML = '';
+      tasks.forEach(name => {
+        const btn = document.createElement('button');
+        btn.textContent = name;
+        btn.className = 'task-btn';
+        btn.onclick = () => startTask(name);
+        container.appendChild(btn);
+      });
+    }
+
+    // --- Render active task display ---
+    function renderActiveTask() {
+      const div = document.getElementById('activeTask');
+      if (currentTask) {
+        const elapsed = Date.now() - startTime.getTime();
+        div.innerHTML = `
+          <strong>${currentTask}</strong><br>
+          Started at: ${formatTime(startTime)}<br>
+          Elapsed: ${formatHMS(elapsed)}<br>
+          <button onclick="stopTask()">Stop</button>
+        `;
+      } else {
+        div.textContent = 'No task running';
+      }
+    }
+
+    // --- Render statistics log ---
+    function renderStats() {
+      const statsDiv = document.getElementById('stats');
+      if (sessions.length === 0) {
+        statsDiv.textContent = 'No sessions logged yet.';
+        return;
+      }
+
+      statsDiv.innerHTML = sessions.map(s => {
+        const start = formatTime(s.start);
+        const end = formatTime(s.end);
+        const durationStr = formatHMSVerbose(s.duration);
+        const date = new Date(s.start).toLocaleDateString();
+        return `
+          <div class="stats-entry">
+            📘 <strong>${s.name}</strong><br>
+            📅 ${date} | ⏰ ${start} → ${end}<br>
+            🕓 Duration: ${durationStr}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // --- Live updates for active timer ---
+    setInterval(() => {
+      if (currentTask) renderActiveTask();
+    }, 1000);
+
+    // --- Initialize ---
+    renderTaskButtons();
+    renderActiveTask();
+    renderStats();
+  </script>
+</body>
+</html>
