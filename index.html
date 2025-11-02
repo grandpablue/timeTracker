@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="current">
+    <div class="karl"><h1>Karlee's Task Tracker</h1></div>
+    <div class="app-message">Select a task to begin</div>
+
+    <div class="app-timer-box">
+      <!-- Timer <p> is created dynamically by JS -->
+    </div>
+
+    <div class="butt-box">
+      <button class="btn-start">Start</button>
+      <button class="btn-stop">Stop</button>
+      <button class="btn-reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="cool-guy">
+    <img src="https://gifdb.com/images/high/i-think-you-should-leave-tim-robinson-slicked-koffpn54ac51ooe1.gif" 
+         alt="Karlee Avatar" width="500" height="200"/>
+  </div>
+
+  <div class="app-container">
+
+    <div class="app-past-tasks-box">
+            <div class="app-tasks-box">
+        <div class="task-title">Add New Tasks</div>
+        <input type="text" class="task-input" placeholder="Enter a new task..." />
+        <button class="btn-add-task">Add Task</button>
+      </div>
+      <div class="past-task-title">Previous Tasks</div>
+      <div class="app-past-tasks-list"></div>
+    </div>
+
+    <div class="task-statistics-box">
+      <div class="task-statistics-title"><h2>Task Statistics</h2></div>
+      <div class="app-stats-box" style="display:flex; justify-content:space-between; margin:10px 0;">
+  <div class="total-time-display"></div>
+  <div class="average-time-display"></div>
+  <div class="most-frequent-task-display"></div>
+  <div class="longest-task-display"></div>
+</div>
+
+    </div>
+
+    <div class="task-history-box">
+      <div class="task-history-title"><h2>Task History</h2></div>
+          <div class="weekly-breakdown">
+      <h3>Monthly Breakdown:</h3>
+      <div class="weekly-breakdown-list"></div>
+    </div>
+      <div class = "full-history">
+      <h3>Overall Task Breakdown:</h3> 
+      <div class="app-task-history-list"></div>
+      <div class="data-buttons-box">
+        <button class="btn-clear-data" style="display:none; opacity:0;">Clear All Data</button>
+        <button class="btn-export-data">Export Data</button>
+        <button class="btn-import-data">Import Data</button>
+        <input type="file" class="import-file-input" style="display:none"/>
+      </div>
+    </div>
+    </div>
+
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
